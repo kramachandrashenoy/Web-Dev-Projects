@@ -1,0 +1,104 @@
+Question:
+Connect to a mysql database and store the student data in a table, use $get to handle the database operations
+
+To connect to a MySQL database and store student data using the `$_GET` method for handling database operations, we'll create a script that accepts data via URL parameters. While using `$_GET` for such operations is generally not recommended due to potential security issues (like URL length limits and exposure of data in the URL), it's possible to demonstrate it for educational purposes. Normally, `$_POST` is preferred for such operations.
+
+### Step-by-Step Guide
+
+1. **Create the MySQL Database and Table**
+2. **Create a PHP Script to Handle the GET Request and Store Data in the Database**
+
+### Step 1: Create the MySQL Database and Table
+
+First, create your database and table using the following SQL commands:
+
+```sql
+CREATE DATABASE school;
+
+USE school;
+
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    cgpa FLOAT NOT NULL
+);
+```
+
+### Step 2: Create the PHP Script to Handle the GET Request
+
+Create a PHP script named `store_student.php` to handle the GET request and store data into the database.
+
+```php
+<?php
+// Database connection parameters
+$servername = "localhost";
+$username = "root"; // Use your MySQL username
+$password = ""; // Use your MySQL password
+$dbname = "school";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Check if the required GET parameters are set
+if (isset($_GET['first_name']) && isset($_GET['last_name']) && isset($_GET['cgpa'])) {
+    // Retrieve data from GET parameters
+    $first_name = $_GET['first_name'];
+    $last_name = $_GET['last_name'];
+    $cgpa = $_GET['cgpa'];
+
+    // Prepare and bind
+    $stmt = $conn->prepare("INSERT INTO students (first_name, last_name, cgpa) VALUES (?, ?, ?)");
+    $stmt->bind_param("ssd", $first_name, $last_name, $cgpa);
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        echo "New record created successfully";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    // Close the statement
+    $stmt->close();
+} else {
+    echo "Required parameters not provided.";
+}
+
+// Close the connection
+$conn->close();
+?>
+```
+
+### Explanation
+
+1. **Database Connection**:
+    - The script starts by setting up the database connection parameters (`$servername`, `$username`, `$password`, `$dbname`).
+    - It then creates a connection to the MySQL database using `mysqli`.
+
+2. **Check GET Parameters**:
+    - The script checks if the required GET parameters (`first_name`, `last_name`, `cgpa`) are set.
+
+3. **Data Retrieval and Preparation**:
+    - It retrieves the data from the GET parameters and prepares an SQL statement to prevent SQL injection.
+    - The `prepare` and `bind_param` methods are used for this purpose.
+
+4. **Execute Statement**:
+    - The prepared statement is executed, and a success or error message is displayed based on the execution result.
+
+5. **Close Connections**:
+    - The statement and the database connection are closed.
+
+### Usage
+
+To use this script, you can make a GET request with the required parameters. For example, you can access the script via a URL like:
+
+```
+http://yourdomain.com/store_student.php?first_name=John&last_name=Doe&cgpa=3.5
+```
+
+Replace `yourdomain.com` with your actual domain or localhost if you are running it locally. This URL will insert a student record with the first name "John", last name "Doe", and CGPA of 3.5 into the `students` table.
