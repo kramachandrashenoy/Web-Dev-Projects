@@ -1,0 +1,102 @@
+Question:
+Fetch a list of all the students from the MySQL database and display their names and cgpa
+
+
+To fetch a list of all students from a MySQL database and display their names and cumulative GPA (CGPA), you can follow these steps:
+
+1. **Set up the database and table**.
+2. **Create a PHP script to fetch and display the data**.
+
+### Database Setup
+Assuming you have a MySQL database named `school` and a table named `students` with the following structure:
+
+```sql
+CREATE DATABASE school;
+
+USE school;
+
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    cgpa FLOAT NOT NULL
+);
+
+-- Insert some sample data
+INSERT INTO students (first_name, last_name, cgpa) VALUES ('John', 'Doe', 3.5);
+INSERT INTO students (first_name, last_name, cgpa) VALUES ('Jane', 'Smith', 3.8);
+INSERT INTO students (first_name, last_name, cgpa) VALUES ('Alice', 'Johnson', 3.2);
+```
+
+### PHP Script to Fetch and Display Data
+
+Create a PHP script (e.g., `fetch_students.php`) to connect to the database, fetch the student data, and display it:
+
+```php
+<?php
+// Database connection parameters
+$servername = "localhost";
+$username = "root"; // Use your MySQL username
+$password = ""; // Use your MySQL password
+$dbname = "school";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// SQL query to fetch student data
+$sql = "SELECT first_name, last_name, cgpa FROM students";
+$result = $conn->query($sql);
+
+// Check if there are results
+if ($result->num_rows > 0) {
+    // Output data of each row
+    echo "<table border='1'>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>CGPA</th>
+            </tr>";
+    while($row = $result->fetch_assoc()) {
+        echo "<tr>
+                <td>" . htmlspecialchars($row["first_name"]) . "</td>
+                <td>" . htmlspecialchars($row["last_name"]) . "</td>
+                <td>" . htmlspecialchars($row["cgpa"]) . "</td>
+              </tr>";
+    }
+    echo "</table>";
+} else {
+    echo "0 results";
+}
+
+// Close the connection
+$conn->close();
+?>
+```
+
+### Explanation
+
+1. **Database Connection**:
+    - The script starts by setting up the database connection parameters (`$servername`, `$username`, `$password`, `$dbname`).
+    - It then creates a connection to the MySQL database using `mysqli`.
+
+2. **Query Execution**:
+    - The script executes a SQL query to fetch the `first_name`, `last_name`, and `cgpa` of all students from the `students` table.
+
+3. **Data Fetching and Display**:
+    - If there are results, the script outputs the data in an HTML table format.
+    - Each student's first name, last name, and CGPA are displayed in a table row.
+    - The `htmlspecialchars` function is used to prevent XSS attacks by converting special characters to HTML entities.
+
+4. **Connection Closure**:
+    - The script closes the database connection after fetching and displaying the data.
+
+### Running the Script
+
+Save the PHP script as `fetch_students.php` and place it in your web server's root directory. Ensure your web server (e.g., Apache or Nginx) and MySQL server are running. Then, access the script through your web browser (e.g., `http://localhost/fetch_students.php`).
+
+This will display a list of all students along with their names and CGPA in a nicely formatted HTML table.
